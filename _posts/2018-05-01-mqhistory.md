@@ -1,12 +1,11 @@
 ---
-title:消息队列发展史
+title: 消息队列发展史
 date: 2018-05-01 23:30:09
 categories:
 - rabbitmq
 - amqp
 - activemq
 ---
-[TITLE]
 
 # 消息队列定义 
 
@@ -15,7 +14,7 @@ categories:
 # 简史
 ![history]
 
-[history]: images/history.png "history" { width:auto; max-width:90% }
+[history]: _includes/_images/history.png "history" { width:auto; max-width:90% }
 
 
 1. Vivek Ranadive在1983年成立Teknekron，并在1985开发了第一个消息总线The Information Bus(TIB)
