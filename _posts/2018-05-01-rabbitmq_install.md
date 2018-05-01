@@ -15,6 +15,7 @@ categories:
 
 RabbitMQ运行依赖erlang，所以先从[https://www.erlang-solutions.com/resources/download.html][2]选择对应的esl-erlang版本包下载，下载完成后，上传到创建的ECS上；再通过下面命令安装erlang。
 
+    apt-get upgrade
     dpkg -i esl-erlang_20.3-1~ubuntu~trusty_amd64.deb
     apt-get -f install
 
