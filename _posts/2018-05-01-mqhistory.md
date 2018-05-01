@@ -10,7 +10,7 @@ categories:
   消息队列是一种进程间通信或同一进程的不同线程间的异步通信方式，主要应用场景有：业务解耦/削峰填谷/数据同步/消息广播/错峰流控等。
   
 # 消息队列简史
-![history](images/history.png)
+![history](https://jianhuagong.github.io/blog/images/history.png)
 
 [history]: images/history.png
 
