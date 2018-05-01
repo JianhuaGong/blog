@@ -9,7 +9,7 @@ categories:
 
 # 1. 申请主机ubuntu 14.0.4 
 
-在"弹性云服务器"上购买弹性云服务器ubuntu 14.0.4。创建完成主机后，为了方便使用，需把其安全组的规则添加出、入方向都为any;*RabbmitMQ支持在各种操作系统上安装，详情见官网: http://www.rabbitmq.com/download.html*
+在"弹性云服务器"上购买弹性云服务器ubuntu 14.0.4。创建完成主机后，为了方便使用，需把其安全组的规则添加出、入方向都为any；*RabbmitMQ支持在各种操作系统上安装，详情见官网: http://www.rabbitmq.com/download.html*
    
 # 2. 安装erlang
 
@@ -41,15 +41,10 @@ RabbitMQ运行依赖erlang，所以先从https://www.erlang-solutions.com/resour
        ./rabbitmqctl set_user_tags admin administrator
        ./rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
 
-   通过http://**服务器地址**:15672可访问管理RabbitMQ管理界面
+   通过http://**服务器地址**:15672可访问管理RabbitMQ管理界面，使用上面创建的用户admin登录
    ![此处输入图片的描述][management_ui]
    
 # 5. 常用命令
-
-   停止RabbitMQ: ./rabbitmqctl stop
-   查看开启的插件：./rabbitmq-plugins list
-   查看用户： ./rabbitmqctl list_users
-   查看队列：./rabbitmqctl list_queues
    
 ## 应用管理
 
