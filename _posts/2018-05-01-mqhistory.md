@@ -1,7 +1,10 @@
 ---
-title         :消息队列发展史
+title:消息队列发展史
 date: 2018-05-01 23:30:09
 categories:
+- rabbitmq
+- amqp
+- activemq
 ---
 [TITLE]
 
