@@ -9,18 +9,18 @@ categories:
 
 # 1. 申请主机ubuntu 14.0.4 
 
-在"弹性云服务器"上购买弹性云服务器ubuntu 14.0.4。创建完成主机后，为了方便使用，需把其安全组的规则添加出、入方向都为any；*RabbmitMQ支持在各种操作系统上安装，详情见官网: http://www.rabbitmq.com/download.html*
+在"弹性云服务器"上购买弹性云服务器ubuntu 14.0.4。创建完成主机后，为了方便使用，需把其安全组的规则添加出、入方向都为any；*RabbmitMQ支持在各种操作系统上安装，详情见官网: [http://www.rabbitmq.com/download.html][1]*
    
 # 2. 安装erlang
 
-RabbitMQ运行依赖erlang，所以先从https://www.erlang-solutions.com/resources/download.html选择对应的esl-erlang版本包下载，下载完成后，上传到创建的ECS上；再通过下面命令安装erlang。
+RabbitMQ运行依赖erlang，所以先从[https://www.erlang-solutions.com/resources/download.html][2]选择对应的esl-erlang版本包下载，下载完成后，上传到创建的ECS上；再通过下面命令安装erlang。
 
     dpkg -i esl-erlang_20.3-1~ubuntu~trusty_amd64.deb
     apt-get -f install
 
 # 3. 安装RabbitMQ
 
-我们通过解压的形式来安装RabbitMQ，先从http://www.rabbitmq.com/install-generic-unix.html下载RabbitMQ unix通用安装包rabbitmq-server-generic-unix-3.7.4.tar.xz，再上传软件包并解压
+我们通过解压的形式来安装RabbitMQ，先从[http://www.rabbitmq.com/install-generic-unix.html][3]下载RabbitMQ unix通用安装包rabbitmq-server-generic-unix-3.7.4.tar.xz，再上传软件包并解压
    
        tar -xf rabbitmq-server-generic-unix-3.7.4.tar.xz
 
@@ -65,7 +65,7 @@ RabbitMQ运行依赖erlang，所以先从https://www.erlang-solutions.com/resour
     ./rabbitmqctl change_password username newpassword //修改用户密码
     ./rabbitmqctl list_users //列出所有用户
     
-## 权限控制管理
+## 权限管理
 
     ./rabbitmqctl add_vhost vhostpath //创建host
     ./rabbitmqctl delete_vhost vhostpath //删除host
@@ -76,3 +76,8 @@ RabbitMQ运行依赖erlang，所以先从https://www.erlang-solutions.com/resour
     ./rabbitmqctl list_user_permissions username //列出用户权限
 
   [management_ui]: https://jianhuagong.github.io/blog/images/management_ui.png
+
+
+  [1]: http://www.rabbitmq.com/download.html
+  [2]: https://www.erlang-solutions.com/resources/download.html
+  [3]: http://www.rabbitmq.com/install-generic-unix.html
