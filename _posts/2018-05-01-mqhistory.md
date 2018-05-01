@@ -14,7 +14,7 @@ categories:
 # 简史
 ![][history]
 
-[history]: _includes/_images/history.png "history" { width:auto; max-width:90% }
+[history]: _includes/_images/history.png
 
 
 1. Vivek Ranadive在1983年成立Teknekron，并在1985开发了第一个消息总线The Information Bus(TIB)
