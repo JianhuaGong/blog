@@ -10,7 +10,6 @@ Netty是一个高性能、异步的、基于事件驱动的网络应用开发框
 整个Netty API都是异步的，对于网络应用于来，IO一般是性能瓶颈，使用异步IO能够很大程度的提升系统的性能，当有事件发生时获得通知，然后执行对应的动作，这样就不会阻塞，提升了系统资源利用率
 
 Netty提供了丰富的功能，下图是Netty框架的组成：
-![netty component](https://jianhuagong.github.io/blog/images/netty_component.png)
 
 [history]: images/history.png
 
