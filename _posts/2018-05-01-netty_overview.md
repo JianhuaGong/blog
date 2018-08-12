@@ -12,6 +12,8 @@ Netty是一个高性能、异步的、基于事件驱动的网络应用开发框
 Netty提供了丰富的功能，下图是Netty框架的组成：
 ![netty component](https://jianhuagong.github.io/blog/images/netty_component.png)
 
+[history]: images/history.png
+
 同时netty解决了Java NIO中存在的一些问题：
 
  1. 多版本的跨平台和兼容性问题，Netty提供一个统一的接口，同一语义无论在Java6还是Java7的环境下都是可以运行的，开发者无需关心底层APIs就可以轻松实现相关功能
