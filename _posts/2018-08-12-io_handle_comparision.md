@@ -7,6 +7,8 @@ grammar_cjkRuby: true
 **BIO（Blocking IO）**：同步阻塞IO，一个请求的数据的读取或写入必须阻塞在一个线程上等待其完成。Java1.4之前，都是BIO通信模式，而我们常见字节流和字符流也都是BIO。
 ![IO Stream Class](./images/iostream.jpg)
 
+![IO Stream Class](/assets/images/avatar.gif)
+
 BIO的通信机制：
 1. 服务端r启动一个ServerSocket并监听在某一端口上；
 2. 然后由一个独立的Acceptor线程负责监听客户端的连接，这其中ServerSocket.accept()是阻塞的，直到有客户端请求才会返回，每个客户端连接后，服务端会启动一个线程去处理该客户端的请求；
