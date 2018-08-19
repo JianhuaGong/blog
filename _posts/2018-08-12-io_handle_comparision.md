@@ -4,6 +4,8 @@ tags: netty, bio, nio
 grammar_cjkRuby: true
 ---
 
+# BIO介绍
+
 **BIO（Blocking IO）**：同步阻塞IO，一个请求的数据的读取或写入必须阻塞在一个线程上等待其完成。Java1.4之前，都是BIO通信模式，而我们常见字节流和字符流也都是BIO。
 ![IO Stream Class](https://jianhuagong.github.io/blog/images/iostream.jpg)
 
@@ -14,7 +16,7 @@ BIO的通信机制：
 4. 服务端Accepto接收到客户端连接请求之后，为每个客户端请求创建一个新的线程进行IO处理，通过输入流读取客户端发过来的数据（InputStream.read()方法时是阻塞的，它会一直等到数据到来时（或超时）才会返回），通过输出流返回应答给客户端，线程销毁等；
 ![enter description here](https://jianhuagong.github.io/blog/images/bio_mode.png)
 
-BIO服务端代码：
+**BIO服务端代码**：
 ``` javascript
 public class BioEchoServer
 {
@@ -90,7 +92,7 @@ public class BioEchoServer
     }
 }
 ```
-BIO客户端代码：
+**BIO客户端代码：**
 
 ``` javascript
 public class BioClient
@@ -137,3 +139,6 @@ public class BioClient
     }
 }
 ```
+
+# NIO
+**NIO（Non-blocking IO）**:同步非阻塞IO，同步阻塞IO，一个请求的数据的读取或写入必须阻塞在一个线程上等待其完成。Java1.4之前，都是BIO通信模式，而我们常见字节流和字符流也都是BIO。
