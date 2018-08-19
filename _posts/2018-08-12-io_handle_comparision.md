@@ -409,3 +409,313 @@ public class NioClient
 }
 
 ```
+
+# AIO
+## 概念说明
+**AIO（Asynchronous IO）**：异步非阻塞IO，在此种模式下，用户进程只需要发起一个IO操作然后立即返回，等IO操作真正的完成以后，应用程序会得到IO操作完成的通知，此时用户进程只需要对数据进行处理就好了，不需要进行实际的IO读写操作，因为真正的IO读取或者写入操作已经由内核完成了。
+从编程模式上来看AIO相对于NIO的区别在于，NIO需要使用者线程不停的轮询IO对象，来确定是否有数据准备好可以读了，而AIO则是在数据准备好之后，才会通知数据使用者，这样使用者就不需要不停地轮询了。当然AIO的异步特性并不是Java实现的伪异步，而是使用了系统底层API的支持，在Unix系统下，采用了epoll IO模型，而windows便是使用了IOCP模型。
+在Jdk1.7中引入AIO，被称作NIO.2，主要在java.nio.channels包下增加了下面四个异步通道：
+- AsynchronousSocketChannel
+- AsynchronousServerSocketChannel
+- AsynchronousFileChannel
+- AsynchronousDatagramChannel
+其中的read/write方法，会返回一个带回调函数的对象，当执行完读取/写入操作后，直接调用回调函数。
+
+## AIO服务端代码
+
+``` javascript
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousServerSocketChannel;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CountDownLatch;
+
+public class Nio2EchoServer
+{
+
+    public static void main(String[] args)
+    {
+        Nio2EchoServer echoServer = new Nio2EchoServer();
+        try
+        {
+            echoServer.serve(8080);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void serve(int port) throws IOException
+    {
+        final AsynchronousServerSocketChannel serverChannel =
+                AsynchronousServerSocketChannel.open();
+        InetSocketAddress address = new InetSocketAddress(port);
+        serverChannel.bind(address); // 1
+        System.out.println("Listening for connections on port " + port);
+        final CountDownLatch latch = new CountDownLatch(1);
+        serverChannel.accept(null, new CompletionHandler<AsynchronousSocketChannel, Object>()
+        { // 2
+            public void completed(final AsynchronousSocketChannel channel, Object attachment)
+            {
+                serverChannel.accept(null, this); // 3
+                ByteBuffer buffer = ByteBuffer.allocate(100);
+                channel.read(buffer, buffer, new EchoCompletionHandler(channel)); // 4
+            }
+
+            public void failed(Throwable throwable, Object attachment)
+            {
+                try
+                {
+                    serverChannel.close(); // 5
+                }
+                catch (IOException e)
+                {
+                    // ingnore on close
+                }
+                finally
+                {
+                    latch.countDown();
+                }
+            }
+        });
+        try
+        {
+            latch.await();
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private final class EchoCompletionHandler implements CompletionHandler<Integer, ByteBuffer>
+    {
+        private final AsynchronousSocketChannel channel;
+
+        EchoCompletionHandler(AsynchronousSocketChannel channel)
+        {
+            this.channel = channel;
+        }
+
+        public void completed(Integer result, ByteBuffer buffer)
+        {
+            System.out.println("Server received: " + new String(buffer.array()));
+
+            buffer.flip();
+            channel.write(buffer, buffer, new CompletionHandler<Integer, ByteBuffer>()
+            { // 6
+                public void completed(Integer result, ByteBuffer buffer)
+                {
+                    if (buffer.hasRemaining())
+                    {
+                        channel.write(buffer, buffer, this); // 7
+                    }
+                    else
+                    {
+                        buffer.compact();
+                        channel.read(buffer, buffer, EchoCompletionHandler.this); // 8
+                    }
+                }
+
+                public void failed(Throwable exc, ByteBuffer attachment)
+                {
+                    try
+                    {
+                        channel.close();
+                    }
+                    catch (IOException e)
+                    {
+                        // ingnore on close
+                    }
+                }
+            });
+        }
+
+        public void failed(Throwable exc, ByteBuffer attachment)
+        {
+            try
+            {
+                channel.close();
+            }
+            catch (IOException e)
+            {
+                // ingnore on close
+            }
+        }
+    }
+}
+```
+
+## AIO 客户端代码
+
+``` javascript
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CountDownLatch;
+
+public class Nio2Client implements CompletionHandler<Void, Nio2Client>
+{
+    private static Integer PORT = 8080;
+    private static String IP_ADDRESS = "127.0.0.1";
+    private static AsynchronousSocketChannel asynSocketChannel;
+
+    private static CountDownLatch latch;
+
+    public static void main(String[] args)
+    {
+        // 创建CountDownLatch等待
+        latch = new CountDownLatch(1);
+        try
+        {
+            asynSocketChannel = AsynchronousSocketChannel.open();
+            // 打开通道
+            asynSocketChannel.connect(new InetSocketAddress(IP_ADDRESS, PORT)); // 创建连接 和NIO一样
+
+            String msg = "I'm AIO";
+            byte[] req = msg.getBytes();
+            ByteBuffer writeBuffer = ByteBuffer.allocate(req.length);
+            writeBuffer.put(req);
+            writeBuffer.flip();
+
+            asynSocketChannel.write(writeBuffer, writeBuffer,
+                    new WriteHandler(asynSocketChannel, latch));
+            latch.await();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            try
+            {
+                asynSocketChannel.close();
+            }
+            catch (IOException e1)
+            {
+                e1.printStackTrace();
+            }
+
+        }
+    }
+
+    @Override
+    public void completed(Void result, Nio2Client attachment)
+    {
+        System.out.println("客户端成功连接到服务器...");
+
+    }
+
+    @Override
+    public void failed(Throwable exc, Nio2Client attachment)
+    {
+        System.err.println("连接服务器失败...");
+        exc.printStackTrace();
+        try
+        {
+            asynSocketChannel.close();
+            latch.countDown();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+class WriteHandler implements CompletionHandler<Integer, ByteBuffer>
+{
+    private AsynchronousSocketChannel clientChannel;
+    private CountDownLatch latch;
+
+    public WriteHandler(AsynchronousSocketChannel clientChannel, CountDownLatch latch)
+    {
+        this.clientChannel = clientChannel;
+        this.latch = latch;
+    }
+
+    @Override
+    public void completed(Integer result, ByteBuffer buffer)
+    {
+        // 完成全部数据的写入
+        if (buffer.hasRemaining())
+        {
+            clientChannel.write(buffer, buffer, this);
+        }
+        else
+        {
+            // 读取数据
+            ByteBuffer readBuffer = ByteBuffer.allocate(1024);
+            clientChannel.read(readBuffer, readBuffer, new ReadHandler(clientChannel, latch));
+        }
+    }
+
+    @Override
+    public void failed(Throwable exc, ByteBuffer attachment)
+    {
+        System.err.println("数据发送失败...");
+        try
+        {
+            clientChannel.close();
+            latch.countDown();
+        }
+        catch (IOException e)
+        {}
+    }
+}
+
+
+class ReadHandler implements CompletionHandler<Integer, ByteBuffer>
+{
+    private AsynchronousSocketChannel clientChannel;
+    private CountDownLatch latch;
+
+    public ReadHandler(AsynchronousSocketChannel clientChannel, CountDownLatch latch)
+    {
+        this.clientChannel = clientChannel;
+        this.latch = latch;
+    }
+
+    @Override
+    public void completed(Integer result, ByteBuffer buffer)
+    {
+        buffer.flip();
+        byte[] bytes = new byte[buffer.remaining()];
+        buffer.get(bytes);
+        String body;
+        try
+        {
+            body = new String(bytes, "UTF-8");
+            System.out.println("Client received: " + body);
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void failed(Throwable exc, ByteBuffer attachment)
+    {
+        System.err.println("数据读取失败...");
+        try
+        {
+            clientChannel.close();
+            latch.countDown();
+        }
+        catch (IOException e)
+        {}
+    }
+}
+```
+
+# 小结
+BIO，同步阻塞式IO，简单理解：一个连接一个线程，线程等待整个读或写处理完成，基于顺序模式；
+NIO，同步非阻塞IO，简单理解：一个IO请求一个线程，线程通过轮询方式得到Ready事件后，继续处理读或写逻辑，基于Reactor模式；
+AIO，异步非阻塞IO，简单理解：一个IO请求不需要用户线程，把IO的工作分出去由操作系统处理，仅读和写完成事件后回调注册handler。
+![](https://jianhuagong.github.io/blog/images/io_mode.png)
