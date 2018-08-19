@@ -6,7 +6,7 @@ grammar_cjkRuby: true
 
 # BIO介绍
 
-**BIO（Blocking IO）**：同步阻塞IO，一个请求的数据的读取或写入必须阻塞在一个线程上等待其完成。Java1.4之前，都是BIO通信模式，而我们常见字节流和字符流也都是BIO。
+**BIO（Blocking IO）**：同步阻塞IO，只要有请求过来，它的数据的读取或写入必须阻塞在一个线程上等待其完成。Java1.4之前，都是BIO通信模式，而我们常见字节流和字符流也都是BIO。
 ![IO Stream Class](https://jianhuagong.github.io/blog/images/iostream.jpg)
 
 BIO的通信机制：
@@ -141,4 +141,4 @@ public class BioClient
 ```
 
 # NIO
-**NIO（Non-blocking IO）**:同步非阻塞IO，同步阻塞IO，一个请求的数据的读取或写入必须阻塞在一个线程上等待其完成。Java1.4之前，都是BIO通信模式，而我们常见字节流和字符流也都是BIO。
+**NIO（New IO 或 Non-blocking IO）**：同步非阻塞IO，一个有效请求（数据可读或可写）时才会分配线程去进行数据的读或写。Java1.4之前，都是BIO通信模式，而我们常见字节流和字符流也都是BIO。
